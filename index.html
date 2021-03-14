@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Komang Arinanda | Shorten Url</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="Shorten Url by Komang Arinanda">
+    <meta name="description" content="Simple Project Shorten Url Using Vue.js">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <link rel="stylesheet" href="grid-view.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <div style="margin: 0 5%">
+            <div class="row">
+                <div class="col-6">
+                    <img src="shorten-url-logo.svg" align="left" style="max-width: 50px;" alt="Logo">
+                    <span class="logo-text"><strong>Shorten</strong>Url</span>
+                    </img>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <img src="freepick-ilustration.jpg" class="center" style="max-width: 30%;" alt="Image Ilustration">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-9">
+                    <input type="text" v-on:keyup.enter="executeShortenUrl()" autocomplete="off" id="url" name="url" placeholder="https://type-or-paste-your-complete-url-here.com" v-model="url">
+                </div>
+                <div class="col-3">
+                    <button v-on:click="executeShortenUrl()">Shorten</button>
+                </div>
+            </div>
+            <div v-if="shortenUrl !== null" class="row">
+                <div class="col-9">
+                    <input type="text" disabled id="shorten-url" name="link" v-model="shortenUrl">
+                </div>
+                <div class="col-3 tooltip">
+                    <button v-on:click="copyShortenUrl()" v-on:mouseout="outFunc()"> <span class="tooltiptext" id="tooltipcopy"> Copy to clipboard</span>Copy</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 text-center">
+                    Build with:
+                    <div class="row" style="padding-left: 20%; padding-right: 20%;">
+                        <div class="col-6">
+                            <a href="https://vuejs.org" style="text-decoration: none; color: #000;" title="vue.js" target="_blank">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg" style="max-width: 30px;" alt="vue.js-logo">
+                                <span> Vue.js</span>
+                                <img>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="https://bitly.com/pages/solutions/for-developers" title="bitly" target="_blank" style="text-decoration: none; color: #000;">
+                                <img src="bitly-logo.svg" style="max-width: 50px;" alt="bitly-logo ">
+                                <span> API</span>
+                                <img>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 text-center">
+                    Assets source:
+                    <div style="padding: 2px;"> House vector created by stories -
+                        <a href='https://www.freepik.com/vectors/house' title="Freepik" target="_blank"> www.freepik.com </a>
+                    </div>
+                    <div style="padding: 2px;">
+                        Icons made by
+                        <a href="https://www.freepik.com" title="Freepik" target="_blank"> Freepik </a> from
+                        <a href="https://www.flaticon.com/" title="Flaticon" target="_blank ">www.flaticon.com</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                url: null,
+                bitlyToken: '50226b2f52086ef66b91d0ea2def2e95c303dbe5',
+                shortenUrl: null
+            },
+            methods: {
+                executeShortenUrl() {
+                    if (this.url === null || this.url === "") {
+                        alert("Please type or paste your link")
+                        return
+                    }
+                    this.shortenUrl = null
+                    const data = {
+                        "domain": "bit.ly",
+                        "long_url": this.url
+                    }
+                    var xhr = new XMLHttpRequest()
+                    xhr.addEventListener("load", (response) => {
+                        if (response.currentTarget.readyState === 4 && (response.currentTarget.status === 200 || response.currentTarget.status === 201)) {
+                            this.shortenUrl = JSON.parse(xhr.responseText).link
+                        } else {
+                            alert(JSON.parse(response.currentTarget.responseText).description)
+                        }
+                    })
+                    xhr.addEventListener("error", function(e) {
+                        alert("Sorry, Getting Unexpected Error :(");
+                    }, false);
+                    xhr.open("POST", "https://api-ssl.bitly.com/v4/shorten")
+                    xhr.setRequestHeader("Authorization", '50226b2f52086ef66b91d0ea2def2e95c303dbe5')
+                    xhr.setRequestHeader("Content-Type", "application/json")
+                    xhr.send(JSON.stringify(data))
+                },
+                copyShortenUrl() {
+                    navigator.clipboard.writeText(this.shortenUrl).then(() => {
+                            var tooltip = document.getElementById("tooltipcopy");
+                            tooltip.innerHTML = "URL has been copied"
+                        })
+                        .catch((error) => {
+                            alert(`Copy failed! ${error}`)
+                        })
+                },
+                outFunc() {
+                    var tooltip = document.getElementById("tooltipcopy");
+                    tooltip.innerHTML = "Copy to clipboard";
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
